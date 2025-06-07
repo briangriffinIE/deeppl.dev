@@ -3,24 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>deepPL – PL/SQL Profiler</title>
+  <title>deepPL – Deep Insights for PL/SQL</title>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #00e0ff;
-      --accent: #0af;
-      --bg: #10131a;
-      --bg-card: #181c24;
-      --text: #f4f6fa;
-      --text-muted: #b0b8c9;
-      --border: #23283a;
-      --shadow: 0 4px 24px rgba(0,0,0,0.12);
+      --ocean-dark: #0a192f;
+      --ocean-mid: #112240;
+      --ocean-light: #233554;
+      --aqua: #00e0ff;
+      --teal: #14ffe9;
+      --cyan: #3ec6e0;
+      --white: #f4f6fa;
+      --muted: #b0b8c9;
+      --shadow: 0 4px 24px rgba(0,0,0,0.18);
+      --radius: 16px;
+      --transition: 0.2s cubic-bezier(.4,0,.2,1);
     }
     html, body {
       margin: 0;
       padding: 0;
-      background: var(--bg);
-      color: var(--text);
+      background: linear-gradient(135deg, var(--ocean-dark) 0%, var(--ocean-mid) 100%);
+      color: var(--white);
       font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
       font-size: 18px;
       line-height: 1.7;
@@ -29,542 +32,408 @@
     body {
       padding: 0;
     }
-    .header {
-      background: var(--bg-card);
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,25,47,0.98);
       box-shadow: var(--shadow);
-      padding: 1.5rem 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-bottom: 1px solid var(--border);
+      height: 70px;
     }
-    .header-inner {
+    .nav-inner {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1200px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 2rem;
     }
-    .logo {
+    .nav-logo {
       display: flex;
       align-items: center;
-      font-size: 1.7rem;
+      font-size: 2rem;
       font-weight: 700;
-      color: var(--primary);
+      color: var(--aqua);
       letter-spacing: 1px;
       text-decoration: none;
     }
-    .logo-icon {
-      width: 2.2rem;
-      height: 2.2rem;
+    .nav-logo svg {
       margin-right: 0.7rem;
-      display: inline-block;
     }
-    nav {
+    .nav-links {
       display: flex;
-      gap: 2rem;
+      gap: 2.2rem;
+      align-items: center;
     }
-    nav a {
-      color: var(--text-muted);
+    .nav-links a {
+      color: var(--muted);
       text-decoration: none;
       font-weight: 600;
       font-size: 1rem;
-      transition: color 0.2s;
+      transition: color var(--transition);
+      position: relative;
     }
-    nav a:hover {
-      color: var(--primary);
+    .nav-links a:hover, .nav-links a.active {
+      color: var(--aqua);
     }
-    .container {
-      max-width: 900px;
-      margin: 2.5rem auto 2rem auto;
-      padding: 2rem;
-      background: var(--bg-card);
-      border-radius: 18px;
-      box-shadow: var(--shadow);
-    }
-    h1, h2, h3, h4 {
-      color: var(--primary);
+    .cta-btn {
+      background: linear-gradient(90deg, var(--aqua), var(--teal));
+      color: var(--ocean-dark);
       font-weight: 700;
-      margin-top: 2.2rem;
-      margin-bottom: 1rem;
+      border: none;
+      border-radius: 999px;
+      padding: 0.7em 2em;
+      font-size: 1.1rem;
+      margin-left: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0,224,255,0.10);
+      transition: background var(--transition), color var(--transition), transform var(--transition);
+    }
+    .cta-btn:hover {
+      background: linear-gradient(90deg, var(--teal), var(--aqua));
+      color: var(--ocean-dark);
+      transform: translateY(-2px) scale(1.04);
+    }
+    .hero {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4.5rem 2rem 3rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-bg {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .hero-title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--aqua);
+      margin-bottom: 1.2rem;
+      letter-spacing: 1px;
+      z-index: 1;
+    }
+    .hero-desc {
+      font-size: 1.35rem;
+      color: var(--white);
+      max-width: 600px;
+      margin-bottom: 2.2rem;
+      z-index: 1;
+    }
+    .hero-cta {
+      z-index: 1;
+    }
+    .features-section {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 2rem 0 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .features-title {
+      font-size: 2rem;
+      color: var(--aqua);
+      font-weight: 700;
+      margin-bottom: 2.5rem;
       letter-spacing: 0.5px;
     }
-    h1 {
-      font-size: 2.5rem;
-      margin-top: 0;
-    }
-    h2 {
-      font-size: 1.7rem;
-    }
-    h3 {
-      font-size: 1.2rem;
-      color: var(--accent);
-    }
-    h4 {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-    }
-    p, ul, ol, blockquote {
-      margin-bottom: 1.2rem;
-    }
-    ul, ol {
-      padding-left: 1.5rem;
-    }
-    li {
-      margin-bottom: 0.5rem;
-    }
-    strong {
-      color: var(--accent);
-      font-weight: 600;
-    }
-    pre, code {
-      background: #23283a;
-      color: #fff;
-      padding: 0.5em 0.8em;
-      border-radius: 6px;
-      font-family: 'Fira Mono', 'Consolas', monospace;
-      font-size: 1em;
-      overflow-x: auto;
-    }
-    pre {
-      margin: 1.2em 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    }
-    a {
-      color: var(--accent);
-      text-decoration: underline;
-      transition: color 0.2s;
-    }
-    a:hover {
-      color: var(--primary);
-    }
-    blockquote {
-      border-left: 4px solid var(--primary);
-      background: #151a22;
-      margin: 1.5em 0;
-      padding: 1em 1.5em;
-      color: var(--text-muted);
-      font-style: italic;
-      border-radius: 8px;
-    }
-    hr {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 2.5em 0;
-    }
-    .card {
-      background: #1d2230;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.10);
-      padding: 1.5rem 2rem;
-      margin-bottom: 2rem;
-      border-left: 5px solid var(--primary);
-    }
-    .feature-list {
+    .features-cards {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.2rem 2.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2.2rem;
+      width: 100%;
+      margin-bottom: 2.5rem;
+    }
+    .feature-card {
+      background: linear-gradient(135deg, var(--ocean-mid) 60%, var(--ocean-light) 100%);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 12px rgba(0,224,255,0.07);
+      padding: 2.2rem 1.5rem 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: transform var(--transition), box-shadow var(--transition);
+      border: 1.5px solid rgba(0,224,255,0.08);
+    }
+    .feature-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 8px 32px rgba(0,224,255,0.13);
+      border-color: var(--aqua);
+    }
+    .feature-icon {
+      width: 2.5rem;
+      height: 2.5rem;
+      margin-bottom: 1.2rem;
+      color: var(--aqua);
+    }
+    .feature-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--aqua);
+      margin-bottom: 0.7rem;
+    }
+    .feature-desc {
+      color: var(--white);
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    .arch-section {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 0 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .arch-title {
+      font-size: 2rem;
+      color: var(--aqua);
+      font-weight: 700;
       margin-bottom: 2rem;
+      letter-spacing: 0.5px;
     }
-    .feature-list li {
-      background: #23283a;
-      border-radius: 8px;
-      padding: 0.7em 1em;
-      color: var(--text);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-      margin-bottom: 0;
-      font-size: 1.05em;
+    .arch-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2.5rem;
+      justify-content: center;
+      width: 100%;
+      margin-bottom: 2.5rem;
     }
-    .section-title {
-      margin-top: 2.5rem;
-      margin-bottom: 1.5rem;
-      font-size: 1.3rem;
-      color: var(--primary);
-      border-bottom: 2px solid var(--border);
-      padding-bottom: 0.3rem;
+    .arch-step {
+      background: var(--ocean-light);
+      border-radius: var(--radius);
+      box-shadow: 0 2px 12px rgba(0,224,255,0.07);
+      padding: 1.5rem 1.2rem;
+      min-width: 220px;
+      max-width: 260px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1.5px solid rgba(0,224,255,0.08);
     }
-    .callout {
-      background: #1a2233;
-      border-left: 5px solid var(--accent);
-      padding: 1.2em 1.5em;
-      border-radius: 10px;
-      margin: 1.5em 0;
-      color: var(--text);
-      font-size: 1.08em;
-      box-shadow: 0 1px 8px rgba(0,0,0,0.08);
+    .arch-step-icon {
+      width: 2.2rem;
+      height: 2.2rem;
+      margin-bottom: 1rem;
+      color: var(--cyan);
     }
-    @media (max-width: 700px) {
-      .container {
-        padding: 1rem;
-      }
-      .header-inner {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 0 1rem;
-      }
-      .feature-list {
+    .arch-step-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--aqua);
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    .arch-step-desc {
+      color: var(--white);
+      font-size: 1rem;
+      text-align: center;
+    }
+    .trustbar {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 0 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .trustbar-title {
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin-bottom: 1.2rem;
+      letter-spacing: 0.5px;
+    }
+    .trustbar-logos {
+      display: flex;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.8;
+    }
+    .trustbar-logos img {
+      height: 32px;
+      filter: grayscale(1) brightness(1.2);
+      opacity: 0.7;
+      transition: opacity var(--transition);
+    }
+    .trustbar-logos img:hover {
+      opacity: 1;
+      filter: none;
+    }
+    .footer {
+      background: linear-gradient(90deg, var(--ocean-mid), var(--ocean-dark));
+      color: var(--muted);
+      padding: 2.5rem 2rem 1.5rem 2rem;
+      text-align: center;
+      font-size: 1rem;
+      margin-top: 3rem;
+    }
+    @media (max-width: 900px) {
+      .features-cards, .arch-steps {
         grid-template-columns: 1fr;
+        flex-direction: column;
+        gap: 1.5rem;
       }
-      .card {
-        padding: 1rem 1rem;
+      .hero {
+        padding: 3rem 1rem 2rem 1rem;
+      }
+      .features-section, .arch-section, .trustbar {
+        padding: 2rem 1rem 0 1rem;
+      }
+    }
+    @media (max-width: 600px) {
+      .nav-inner {
+        flex-direction: column;
+        gap: 0.7rem;
+        padding: 0 0.5rem;
+      }
+      .hero-title {
+        font-size: 2rem;
+      }
+      .features-title, .arch-title {
+        font-size: 1.3rem;
       }
     }
   </style>
 </head>
 <body>
-  <header class="header">
-    <div class="header-inner">
-      <a href="#" class="logo">
-        <span class="logo-icon">
-          <!-- Simple SVG icon for database/profiler -->
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><ellipse cx="16" cy="8" rx="12" ry="5" fill="#00e0ff" fill-opacity="0.18"/><ellipse cx="16" cy="8" rx="12" ry="5" stroke="#00e0ff" stroke-width="2"/><rect x="4" y="8" width="24" height="16" rx="8" fill="#00e0ff" fill-opacity="0.10"/><rect x="4" y="8" width="24" height="16" rx="8" stroke="#00e0ff" stroke-width="2"/><ellipse cx="16" cy="24" rx="12" ry="5" fill="#00e0ff" fill-opacity="0.18"/><ellipse cx="16" cy="24" rx="12" ry="5" stroke="#00e0ff" stroke-width="2"/></svg>
-        </span>
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none"><ellipse cx="18" cy="9" rx="14" ry="6" fill="#00e0ff" fill-opacity="0.13"/><ellipse cx="18" cy="9" rx="14" ry="6" stroke="#00e0ff" stroke-width="2"/><rect x="4" y="9" width="28" height="18" rx="9" fill="#00e0ff" fill-opacity="0.10"/><rect x="4" y="9" width="28" height="18" rx="9" stroke="#00e0ff" stroke-width="2"/><ellipse cx="18" cy="27" rx="14" ry="6" fill="#00e0ff" fill-opacity="0.13"/><ellipse cx="18" cy="27" rx="14" ry="6" stroke="#00e0ff" stroke-width="2"/></svg>
         deepPL
       </a>
-      <nav>
+      <div class="nav-links">
         <a href="#features">Features</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#setup">Setup</a>
-        <a href="#docs">Docs</a>
-        <a href="#license">License</a>
-      </nav>
-    </div>
-  </header>
-  <main class="container">
-    <h1>PL/SQL Profiler - Project Overview</h1>
-    <div class="card">
-      <h2>Executive Summary</h2>
-      <p>The <strong>PL/SQL Profiler</strong> is a comprehensive, enterprise-grade performance analysis platform designed for Oracle PL/SQL applications. This tool provides deep insights into PL/SQL code execution, helping developers and DBAs identify performance bottlenecks, optimize database operations, and ensure code quality through advanced static analysis.</p>
-    </div>
-    <div class="card">
-      <h2 id="features">🎯 Core Purpose</h2>
-      <ul class="feature-list">
-        <li><strong>Performance Analysis:</strong> Line-by-line execution profiling of PL/SQL code</li>
-        <li><strong>Code Quality:</strong> Static analysis with configurable rules and recommendations</li>
-        <li><strong>Enterprise Integration:</strong> Support for complex business logic and real-world scenarios</li>
-        <li><strong>Hierarchical Profiling:</strong> Advanced call tree analysis using Oracle's DBMS_HPROF</li>
-        <li><strong>Web-based Interface:</strong> Modern, intuitive dashboard for analysis and reporting</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h2 id="architecture">🏗️ Architecture Overview</h2>
-      <h3>Core Components</h3>
-      <ol>
-        <li><strong>Profiling Engine (<code>plsql_profiler.core</code>)</strong>
-          <ul>
-            <li><code>PLSQLProfiler</code>: Main profiler using Oracle's DBMS_PROFILER</li>
-            <li><code>HierarchicalProfiler</code>: Advanced profiling with DBMS_HPROF</li>
-            <li><code>MockPLSQLProfiler</code>: Testing and demo mode without Oracle connection</li>
-          </ul>
-        </li>
-        <li><strong>Static Analysis Engine (<code>static_analyzer.py</code>)</strong>
-          <ul>
-            <li>Rule-based code analysis with 15+ built-in rules</li>
-            <li>Configurable severity levels and custom parameters</li>
-            <li>Real-time code quality scoring and recommendations</li>
-          </ul>
-        </li>
-        <li><strong>Web Interface (<code>plsql_profiler.web</code>)</strong>
-          <ul>
-            <li>Flask-based modern web application</li>
-            <li>Interactive dashboards and visualizations</li>
-            <li>Real-time profiling control and monitoring</li>
-          </ul>
-        </li>
-        <li><strong>License Management (<code>license_manager.py</code>)</strong>
-          <ul>
-            <li>Enterprise licensing with expiration tracking</li>
-            <li>Usage monitoring and compliance reporting</li>
-          </ul>
-        </li>
-      </ol>
-    </div>
-    <div class="card">
-      <h2 class="section-title">🌟 Key Features</h2>
-      <h3>1. Real-time PL/SQL Profiling</h3>
-      <ul>
-        <li><strong>Line-Level Performance Analysis</strong>
-          <ul>
-            <li>Execution count per line</li>
-            <li>Total, minimum, and maximum execution times</li>
-            <li>Resource consumption tracking (CPU, I/O, memory)</li>
-            <li>SQL statement analysis within PL/SQL blocks</li>
-          </ul>
-        </li>
-        <li><strong>Advanced Metrics</strong>
-          <ul>
-            <li>Buffer gets and disk reads</li>
-            <li>Rows processed and affected</li>
-            <li>Wait event analysis</li>
-            <li>Bind variable capture and analysis</li>
-          </ul>
-        </li>
-      </ul>
-      <h3>2. Hierarchical Call Tree Analysis</h3>
-      <ul>
-        <li><strong>DBMS_HPROF Integration</strong>
-          <ul>
-            <li>Complete call stack visualization</li>
-            <li>Function call relationships and dependencies</li>
-            <li>Time distribution across call hierarchy</li>
-            <li>Performance bottleneck identification</li>
-          </ul>
-        </li>
-        <li><strong>Fallback Mechanism</strong>
-          <ul>
-            <li>Smart fallback for Oracle XE limitations</li>
-            <li>Synthetic call tree generation</li>
-            <li>Maintains analysis capability across Oracle versions</li>
-          </ul>
-        </li>
-      </ul>
-      <h3>3. Static Code Analysis</h3>
-      <ul>
-        <li><strong>Comprehensive Rule Engine</strong>
-          <ul>
-            <li><strong>Security Rules</strong>: SQL injection detection, dynamic SQL validation</li>
-            <li><strong>Performance Rules</strong>: SELECT * detection, nested loops, commit-in-loop</li>
-            <li><strong>Maintainability Rules</strong>: Magic numbers, hardcoded values, long procedures</li>
-            <li><strong>Reliability Rules</strong>: Exception handling, cursor management</li>
-            <li><strong>Code Quality Rules</strong>: Implicit conversions, bind variable usage</li>
-          </ul>
-        </li>
-        <li><strong>Configurable Analysis</strong>
-          <ul>
-            <li>YAML-based rule configuration</li>
-            <li>Custom severity levels (Info, Warning, Error, Critical)</li>
-            <li>Rule-specific parameters and thresholds</li>
-            <li>Runtime rule updates and reloading</li>
-          </ul>
-        </li>
-      </ul>
-      <h3>4. Enterprise Database Integration</h3>
-      <ul>
-        <li><strong>Real-world E-commerce Scenarios</strong>
-          <ul>
-            <li>Customer management with tier-based processing</li>
-            <li>Order processing with complex business logic</li>
-            <li>Inventory management and automated restocking</li>
-            <li>Financial calculations with tax and discount handling</li>
-          </ul>
-        </li>
-        <li><strong>Sample Procedures for Testing</strong>
-          <ul>
-            <li><code>ec_order_engine.process_order()</code>: Multi-step order processing</li>
-            <li><code>ec_analyze_customer_behavior</code>: Customer analytics and upgrades</li>
-            <li><code>ec_restock_low_inventory</code>: Automated inventory management</li>
-            <li><code>ec_process_pending_orders</code>: Batch order processing</li>
-          </ul>
-        </li>
-      </ul>
-      <h3>5. Modern Web Interface</h3>
-      <ul>
-        <li><strong>Dashboard Features</strong>
-          <ul>
-            <li>Real-time profiling status and controls</li>
-            <li>Interactive performance charts and graphs</li>
-            <li>Run history with filtering and search</li>
-            <li>Export capabilities for reports and data</li>
-          </ul>
-        </li>
-        <li><strong>Analysis Views</strong>
-          <ul>
-            <li>Detailed run analysis with drill-down capabilities</li>
-            <li>SQL statement breakdown and optimization suggestions</li>
-            <li>Call tree visualization with performance metrics</li>
-            <li>Code quality reports with actionable recommendations</li>
-          </ul>
-        </li>
-        <li><strong>Settings and Configuration</strong>
-          <ul>
-            <li>Rule configuration interface</li>
-            <li>Database connection management</li>
-            <li>License status and usage tracking</li>
-            <li>System diagnostics and health checks</li>
-          </ul>
-        </li>
-      </ul>
-      <h3>6. Multi-Mode Operation</h3>
-      <ul>
-        <li><strong>Production Mode</strong>
-          <ul>
-            <li>Full Oracle database integration</li>
-            <li>Complete profiling capabilities</li>
-            <li>Enterprise feature set</li>
-            <li>License validation and compliance</li>
-          </ul>
-        </li>
-        <li><strong>Mock Mode</strong>
-          <ul>
-            <li>Offline development and testing</li>
-            <li>Simulated profiling data</li>
-            <li>UI development and demonstration</li>
-            <li>No Oracle database required</li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-    <div class="card">
-      <h2 class="section-title">🛠️ Technical Specifications</h2>
-      <h3>Database Requirements</h3>
-      <ul>
-        <li><strong>Oracle Database</strong>: 11g or higher (tested with Oracle XE)</li>
-        <li><strong>Required Packages</strong>: DBMS_PROFILER, DBMS_HPROF (when available)</li>
-        <li><strong>Privileges</strong>: CREATE TABLE, SELECT on V$ views, EXECUTE on DBMS packages</li>
-      </ul>
-      <h3>System Requirements</h3>
-      <ul>
-        <li><strong>Python</strong>: 3.8+ with pip</li>
-        <li><strong>Dependencies</strong>: Flask, oracledb, click, pyyaml, jinja2</li>
-        <li><strong>Storage</strong>: Minimal (profiling data stored in Oracle)</li>
-        <li><strong>Network</strong>: HTTP access for web interface (default port 5000/5003)</li>
-      </ul>
-      <h3>Deployment Options</h3>
-      <ul>
-        <li><strong>Docker</strong>: Containerized deployment with docker-compose</li>
-        <li><strong>Standalone</strong>: Direct Python installation with virtual environment</li>
-        <li><strong>Development</strong>: Local setup with mock mode for testing</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h2 class="section-title">📊 Use Cases and Benefits</h2>
-      <h3>For Database Developers</h3>
-      <ul class="feature-list">
-        <li><strong>Performance Optimization:</strong> Identify slow PL/SQL code and bottlenecks</li>
-        <li><strong>Code Quality:</strong> Ensure adherence to best practices and standards</li>
-        <li><strong>Debugging:</strong> Understand execution flow and resource usage</li>
-        <li><strong>Testing:</strong> Validate performance improvements and regressions</li>
-      </ul>
-      <h3>For Database Administrators</h3>
-      <ul class="feature-list">
-        <li><strong>Monitoring:</strong> Track PL/SQL performance across applications</li>
-        <li><strong>Capacity Planning:</strong> Understand resource consumption patterns</li>
-        <li><strong>Troubleshooting:</strong> Diagnose performance issues in production</li>
-        <li><strong>Compliance:</strong> Ensure code meets organizational standards</li>
-      </ul>
-      <h3>For Development Teams</h3>
-      <ul class="feature-list">
-        <li><strong>Code Reviews:</strong> Automated quality checks and recommendations</li>
-        <li><strong>Documentation:</strong> Generate performance reports and analysis</li>
-        <li><strong>Training:</strong> Learn PL/SQL best practices through rule explanations</li>
-        <li><strong>Integration:</strong> Embed profiling into CI/CD pipelines</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h2 class="section-title" id="setup">🔧 Setup and Configuration</h2>
-      <h3>Quick Start</h3>
-      <div class="callout">
-        <pre><code>./scripts/setup/setup_enterprise_database.sh
-python start.py prod</code></pre>
+        <a href="#architecture">How it Works</a>
+        <a href="#trust">Customers</a>
+        <a href="#contact">Contact</a>
+        <button class="cta-btn">Get Started</button>
       </div>
-      <h3>Mock Mode for Testing</h3>
-      <div class="callout">
-        <pre><code>python scripts/utilities/enable_mock_mode.py
-python start.py</code></pre>
+    </div>
+  </nav>
+  <section class="hero">
+    <div class="hero-bg">
+      <!-- SVG ocean wave background -->
+      <svg width="100%" height="320" viewBox="0 0 1440 320" fill="none" style="position:absolute;top:0;left:0;z-index:0;" preserveAspectRatio="none"><path fill="#00e0ff" fill-opacity="0.08" d="M0,160L60,170.7C120,181,240,203,360,197.3C480,192,600,160,720,154.7C840,149,960,171,1080,181.3C1200,192,1320,192,1380,192L1440,192L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path></svg>
+    </div>
+    <h1 class="hero-title">Deep Insights for PL/SQL Performance</h1>
+    <div class="hero-desc">deepPL empowers Oracle teams to profile, analyze, and optimize PL/SQL code with enterprise-grade precision. Visualize execution, uncover bottlenecks, and ensure code quality—all in a modern, ocean-inspired dashboard.</div>
+    <div class="hero-cta">
+      <button class="cta-btn">Request Demo</button>
+    </div>
+  </section>
+  <section class="features-section" id="features">
+    <div class="features-title">Why Choose deepPL?</div>
+    <div class="features-cards">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <!-- Stopwatch Icon -->
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="16" r="12"/><path d="M16 10v6l4 2"/></svg>
+        </div>
+        <div class="feature-title">Real-Time Profiling</div>
+        <div class="feature-desc">Line-level performance metrics for every PL/SQL execution. Instantly identify slow code and optimize with confidence.</div>
       </div>
-      <h3>Configuration Options</h3>
-      <ul>
-        <li><strong>Environment Variables</strong>: Database connection parameters</li>
-        <li><strong>Rule Configuration</strong>: Custom analysis rules in YAML format</li>
-        <li><strong>License Management</strong>: Enterprise licensing configuration</li>
-        <li><strong>Web Interface</strong>: Port and security settings</li>
-      </ul>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <!-- Shield Icon -->
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4l12 4v6c0 7-5 13-12 14C9 27 4 21 4 14V8l12-4z"/></svg>
+        </div>
+        <div class="feature-title">Enterprise-Grade Security</div>
+        <div class="feature-desc">Advanced static analysis and security rules. Detect vulnerabilities, enforce best practices, and stay compliant.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <!-- Tree Icon -->
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="8" r="4"/><path d="M16 12v8"/><circle cx="10" cy="24" r="4"/><circle cx="22" cy="24" r="4"/><path d="M16 20l-6 4"/><path d="M16 20l6 4"/></svg>
+        </div>
+        <div class="feature-title">Hierarchical Call Analysis</div>
+        <div class="feature-desc">Visualize call trees and dependencies. Drill down into execution paths and resource usage across your stack.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <!-- Dashboard Icon -->
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="24" height="16" rx="4"/><path d="M12 16h8"/><path d="M16 12v8"/></svg>
+        </div>
+        <div class="feature-title">Modern Web Dashboard</div>
+        <div class="feature-desc">Intuitive, ocean-inspired UI for real-time monitoring, reporting, and team collaboration.</div>
+      </div>
     </div>
-    <div class="card">
-      <h2 class="section-title">📈 Advanced Analytics</h2>
-      <h3>Performance Trends</h3>
-      <ul>
-        <li>Historical run comparison</li>
-        <li>Performance regression detection</li>
-        <li>Resource usage patterns</li>
-        <li>Optimization effectiveness tracking</li>
-      </ul>
-      <h3>Code Quality Metrics</h3>
-      <ul>
-        <li>Quality score calculation</li>
-        <li>Rule violation trends</li>
-        <li>Category-based analysis</li>
-        <li>Improvement recommendations</li>
-      </ul>
-      <h3>Reporting and Export</h3>
-      <ul>
-        <li>PDF report generation</li>
-        <li>CSV data export</li>
-        <li>API endpoints for integration</li>
-        <li>Custom dashboard creation</li>
-      </ul>
+  </section>
+  <section class="arch-section" id="architecture">
+    <div class="arch-title">How deepPL Works</div>
+    <div class="arch-steps">
+      <div class="arch-step">
+        <div class="arch-step-icon">
+          <!-- Database Icon -->
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="16" cy="8" rx="12" ry="5"/><rect x="4" y="8" width="24" height="16" rx="8"/></svg>
+        </div>
+        <div class="arch-step-title">Connect</div>
+        <div class="arch-step-desc">Securely connect to your Oracle database with minimal setup.</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-icon">
+          <!-- Analyze Icon -->
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="20" height="20" rx="5"/><path d="M16 11v6"/><circle cx="16" cy="19" r="1"/></svg>
+        </div>
+        <div class="arch-step-title">Profile & Analyze</div>
+        <div class="arch-step-desc">Run deep, line-level profiling and static code analysis in real time.</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-icon">
+          <!-- Visualize Icon -->
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="16" width="6" height="10" rx="2"/><rect x="13" y="10" width="6" height="16" rx="2"/><rect x="22" y="4" width="6" height="22" rx="2"/></svg>
+        </div>
+        <div class="arch-step-title">Visualize</div>
+        <div class="arch-step-desc">Explore interactive dashboards, call trees, and actionable insights.</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-icon">
+          <!-- Optimize Icon -->
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4v24"/><circle cx="16" cy="16" r="8"/><path d="M8 16h16"/></svg>
+        </div>
+        <div class="arch-step-title">Optimize</div>
+        <div class="arch-step-desc">Act on recommendations to boost performance and code quality.</div>
+      </div>
     </div>
-    <div class="card">
-      <h2 class="section-title">🔒 Security and Compliance</h2>
-      <h3>Security Features</h3>
-      <ul>
-        <li>SQL injection detection and prevention</li>
-        <li>Dynamic SQL validation and recommendations</li>
-        <li>Secure database connection handling</li>
-        <li>Input validation and sanitization</li>
-      </ul>
-      <h3>Compliance Support</h3>
-      <ul>
-        <li>Audit trail for profiling activities</li>
-        <li>Code quality standards enforcement</li>
-        <li>Performance benchmark tracking</li>
-        <li>Change impact analysis</li>
-      </ul>
+  </section>
+  <section class="trustbar" id="trust">
+    <div class="trustbar-title">Trusted by teams at</div>
+    <div class="trustbar-logos">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg" alt="Oracle" style="height:32px;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_Web_Services_Logo.svg" alt="AWS" style="height:32px;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/Microsoft_Azure_Logo.svg" alt="Azure" style="height:32px;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Google_Cloud_logo.svg" alt="Google Cloud" style="height:32px;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/IBM_logo.svg" alt="IBM" style="height:32px;">
     </div>
-    <div class="card">
-      <h2 class="section-title">🚀 Getting Started</h2>
-      <ol>
-        <li><strong>Setup Database</strong>: Configure Oracle with required packages</li>
-        <li><strong>Install Dependencies</strong>: Set up Python environment</li>
-        <li><strong>Configure Connection</strong>: Set Oracle connection parameters</li>
-        <li><strong>Start Profiling</strong>: Launch web interface and begin analysis</li>
-        <li><strong>Analyze Results</strong>: Review performance data and recommendations</li>
-      </ol>
+  </section>
+  <footer class="footer" id="contact">
+    <div style="margin-bottom:1rem;">
+      <a href="#" style="color:var(--aqua);text-decoration:none;font-weight:700;">deepPL</a> &mdash; Deep Insights for PL/SQL Performance
     </div>
-    <div class="card">
-      <h2 class="section-title" id="docs">📚 Documentation and Support</h2>
-      <h3>Available Documentation</h3>
-      <ul>
-        <li><strong>Technical Overview</strong>: Architecture and implementation details</li>
-        <li><strong>Setup Guides</strong>: Installation and configuration instructions</li>
-        <li><strong>User Manuals</strong>: Feature usage and best practices</li>
-        <li><strong>API Reference</strong>: Integration and automation guides</li>
-      </ul>
-      <h3>Diagnostic Tools</h3>
-      <ul>
-        <li>Database configuration checker</li>
-        <li>Profiler functionality tester</li>
-        <li>Connection troubleshooting</li>
-        <li>Performance baseline establishment</li>
-      </ul>
+    <div style="margin-bottom:0.7rem;">
+      &copy; 2024 deepPL. All rights reserved. &nbsp;|&nbsp;
+      <a href="#" style="color:var(--cyan);text-decoration:underline;">Contact</a>
     </div>
-    <div class="card">
-      <h2 class="section-title">🔮 Future Enhancements</h2>
-      <h3>Planned Features</h3>
-      <ul>
-        <li>Machine learning-based optimization suggestions</li>
-        <li>Integration with Oracle Cloud Infrastructure</li>
-        <li>Advanced visualization and reporting</li>
-        <li>Multi-database support beyond Oracle</li>
-        <li>CI/CD pipeline integration</li>
-        <li>Mobile-responsive interface improvements</li>
-      </ul>
-      <h3>Extensibility</h3>
-      <ul>
-        <li>Plugin architecture for custom analyzers</li>
-        <li>API for third-party integrations</li>
-        <li>Custom rule development framework</li>
-        <li>Multi-language support for internationalization</li>
-      </ul>
+    <div style="font-size:0.95em;opacity:0.7;">
+      Built with love by the deepPL team. Inspired by the depths of the ocean.
     </div>
-    <hr />
-    <div class="card" id="license">
-      <h2 class="section-title">📄 License and Support</h2>
-      <p>This project is licensed under the MIT License, providing flexibility for both commercial and open-source use. Enterprise support and consulting services are available for organizations requiring additional features or professional implementation assistance.</p>
-    </div>
-    <hr />
-    <p style="text-align:center; color:var(--text-muted); margin-top:2.5rem;">The PL/SQL Profiler represents a comprehensive solution for Oracle PL/SQL performance analysis, combining enterprise-grade profiling capabilities with modern web-based interfaces and intelligent code analysis to help development teams deliver high-performance database applications.</p>
-  </main>
+  </footer>
 </body>
 </html>
