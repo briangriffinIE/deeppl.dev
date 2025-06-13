@@ -1,678 +1,1255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>deepPL – Enterprise PL/SQL Performance Profiler</title>
-  <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet">
-  <meta name="description" content="deepPL is the enterprise-grade, self-hosted PL/SQL profiler and analyzer. Empower your Oracle team to optimize code, boost performance, and ensure compliance.">
-  <style>
-    :root {
-      --ocean-dark: #0a192f;
-      --ocean-mid: #112240;
-      --ocean-light: #233554;
-      --aqua: #00e0ff;
-      --teal: #14ffe9;
-      --cyan: #3ec6e0;
-      --white: #f4f6fa;
-      --muted: #b0b8c9;
-      --shadow: 0 4px 24px rgba(0,0,0,0.18);
-      --radius: 16px;
-      --transition: 0.2s cubic-bezier(.4,0,.2,1);
-      --accent-gradient: linear-gradient(90deg, var(--aqua), var(--teal));
-    }
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, var(--ocean-dark) 0%, var(--ocean-mid) 100%);
-      color: var(--white);
-      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-      font-size: 18px;
-      line-height: 1.7;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(10,25,47,0.98);
-      box-shadow: var(--shadow);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 70px;
-    }
-    .nav-inner {
-      width: 100%;
-      max-width: 1200px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 2rem;
-    }
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--aqua);
-      letter-spacing: 1px;
-      text-decoration: none;
-      min-width: 120px;
-    }
-    .nav-links {
-      display: flex;
-      gap: 2.2rem;
-      align-items: center;
-    }
-    .nav-links a {
-      color: var(--muted);
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1rem;
-      transition: color var(--transition);
-      position: relative;
-      padding: 0.5em 0.2em;
-    }
-    .nav-links a:hover, .nav-links a.active {
-      color: var(--aqua);
-    }
-    .cta-btn {
-      background: var(--accent-gradient);
-      color: var(--ocean-dark);
-      font-weight: 700;
-      border: none;
-      border-radius: 999px;
-      padding: 0.7em 2em;
-      font-size: 1.1rem;
-      margin-left: 1.5rem;
-      cursor: pointer;
-      box-shadow: 0 2px 12px rgba(0,224,255,0.10);
-      transition: background var(--transition), color var(--transition), transform var(--transition);
-      min-width: 120px;
-      min-height: 44px;
-      touch-action: manipulation;
-    }
-    .cta-btn:hover, .cta-btn:focus {
-      background: linear-gradient(90deg, var(--teal), var(--aqua));
-      color: var(--ocean-dark);
-      transform: translateY(-2px) scale(1.04);
-      outline: none;
-    }
-    .hero {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 5rem 2rem 3rem 2rem;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 400px;
-      position: relative;
-    }
-    .hero-content {
-      max-width: 600px;
-      z-index: 1;
-    }
-    .hero-title {
-      font-size: 2.8rem;
-      font-weight: 800;
-      color: var(--aqua);
-      margin-bottom: 1.2rem;
-      letter-spacing: 1px;
-      line-height: 1.1;
-    }
-    .hero-desc {
-      font-size: 1.35rem;
-      color: var(--white);
-      margin-bottom: 2.2rem;
-      opacity: 0.95;
-    }
-    .hero-cta {
-      display: flex;
-      gap: 1.2rem;
-      margin-top: 1.5rem;
-    }
-    .hero-img {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 320px;
-    }
-    .hero-img img {
-      width: 380px;
-      max-width: 90vw;
-      border-radius: var(--radius);
-      box-shadow: 0 8px 32px rgba(0,224,255,0.13);
-      border: 2px solid var(--aqua);
-      background: var(--ocean-light);
-    }
-    .trustbar {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2.5rem 2rem 0 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .trustbar-title {
-      color: var(--muted);
-      font-size: 1.1rem;
-      margin-bottom: 1.2rem;
-      letter-spacing: 0.5px;
-      text-align: center;
-    }
-    .trustbar-logos {
-      display: flex;
-      gap: 2.5rem;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      opacity: 0.8;
-      width: 100%;
-    }
-    .trustbar-logos img {
-      height: 32px;
-      filter: grayscale(1) brightness(1.2);
-      opacity: 0.7;
-      transition: opacity var(--transition);
-      max-width: 120px;
-      width: auto;
-    }
-    .trustbar-logos img:hover {
-      opacity: 1;
-      filter: none;
-    }
-    .features-section {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 3rem 2rem 0 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .features-title {
-      font-size: 2rem;
-      color: var(--aqua);
-      font-weight: 700;
-      margin-bottom: 2.5rem;
-      letter-spacing: 0.5px;
-      text-align: center;
-    }
-    .features-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 2.2rem;
-      width: 100%;
-      margin-bottom: 2.5rem;
-    }
-    .feature-card {
-      background: linear-gradient(135deg, var(--ocean-mid) 60%, var(--ocean-light) 100%);
-      border-radius: var(--radius);
-      box-shadow: 0 2px 12px rgba(0,224,255,0.07);
-      padding: 2.2rem 1.5rem 1.5rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      transition: transform var(--transition), box-shadow var(--transition);
-      border: 1.5px solid rgba(0,224,255,0.08);
-      min-width: 0;
-    }
-    .feature-card:hover {
-      transform: translateY(-6px) scale(1.03);
-      box-shadow: 0 8px 32px rgba(0,224,255,0.13);
-      border-color: var(--aqua);
-    }
-    .feature-icon {
-      width: 2.5rem;
-      height: 2.5rem;
-      margin-bottom: 1.2rem;
-      color: var(--aqua);
-      flex-shrink: 0;
-    }
-    .feature-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--aqua);
-      margin-bottom: 0.7rem;
-    }
-    .feature-desc {
-      color: var(--white);
-      font-size: 1.05rem;
-      line-height: 1.6;
-    }
-    .screenshots-section {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 2rem 0 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .screenshots-title {
-      font-size: 1.5rem;
-      color: var(--aqua);
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-    .screenshots-row {
-      display: flex;
-      gap: 2rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-    }
-    .screenshot {
-      background: var(--ocean-light);
-      border-radius: var(--radius);
-      box-shadow: 0 2px 12px rgba(0,224,255,0.07);
-      border: 1.5px solid rgba(0,224,255,0.08);
-      width: 340px;
-      height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      font-size: 1.1rem;
-      margin-bottom: 1.5rem;
-      overflow: hidden;
-    }
-    .testimonials-section {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2.5rem 2rem 0 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .testimonials-title {
-      font-size: 1.5rem;
-      color: var(--aqua);
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-    .testimonials-row {
-      display: flex;
-      gap: 2rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-    }
-    .testimonial-card {
-      background: var(--ocean-light);
-      border-radius: var(--radius);
-      box-shadow: 0 2px 12px rgba(0,224,255,0.07);
-      border: 1.5px solid rgba(0,224,255,0.08);
-      width: 340px;
-      padding: 1.5rem 1.2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      margin-bottom: 1.5rem;
-      min-width: 0;
-    }
-    .testimonial-quote {
-      color: var(--white);
-      font-size: 1.05rem;
-      font-style: italic;
-      margin-bottom: 1rem;
-    }
-    .testimonial-author {
-      color: var(--cyan);
-      font-weight: 700;
-      font-size: 1rem;
-    }
-    .testimonial-role {
-      color: var(--muted);
-      font-size: 0.97rem;
-    }
-    .pricing-section {
-      width: 100%;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 3rem 2rem 0 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .pricing-title {
-      font-size: 1.5rem;
-      color: var(--aqua);
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-    .pricing-table {
-      background: var(--ocean-light);
-      border-radius: var(--radius);
-      box-shadow: 0 2px 12px rgba(0,224,255,0.07);
-      border: 1.5px solid rgba(0,224,255,0.08);
-      padding: 2rem 2.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    .pricing-row {
-      display: flex;
-      gap: 2.5rem;
-      flex-wrap: wrap;
-      justify-content: center;
-      width: 100%;
-    }
-    .pricing-plan {
-      background: var(--ocean-mid);
-      border-radius: var(--radius);
-      box-shadow: 0 2px 12px rgba(0,224,255,0.07);
-      border: 1.5px solid rgba(0,224,255,0.08);
-      width: 260px;
-      padding: 1.5rem 1.2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      min-width: 0;
-    }
-    .plan-title {
-      color: var(--aqua);
-      font-weight: 700;
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
-    }
-    .plan-price {
-      color: var(--white);
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 0.7rem;
-    }
-    .plan-desc {
-      color: var(--muted);
-      font-size: 1rem;
-      margin-bottom: 1.2rem;
-      text-align: center;
-    }
-    .plan-cta {
-      background: var(--accent-gradient);
-      color: var(--ocean-dark);
-      font-weight: 700;
-      border: none;
-      border-radius: 999px;
-      padding: 0.6em 1.5em;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 0.7rem;
-      transition: background var(--transition), color var(--transition), transform var(--transition);
-    }
-    .plan-cta:hover, .plan-cta:focus {
-      background: linear-gradient(90deg, var(--teal), var(--aqua));
-      color: var(--ocean-dark);
-      transform: translateY(-2px) scale(1.04);
-      outline: none;
-    }
-    .footer {
-      background: linear-gradient(90deg, var(--ocean-mid), var(--ocean-dark));
-      color: var(--muted);
-      padding: 2.5rem 2rem 1.5rem 2rem;
-      text-align: center;
-      font-size: 1rem;
-      margin-top: 3rem;
-    }
-    /* Responsive Tweaks */
-    @media (max-width: 1200px) {
-      .nav-inner, .hero, .features-section, .screenshots-section, .testimonials-section, .pricing-section, .trustbar {
-        max-width: 100vw;
-        padding-left: 1rem;
-        padding-right: 1rem;
-      }
-    }
-    @media (max-width: 900px) {
-      .hero {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 2.5rem 1rem 1.5rem 1rem;
-      }
-      .hero-img {
-        margin-top: 2rem;
-      }
-      .features-cards, .screenshots-row, .testimonials-row, .pricing-row {
-        grid-template-columns: 1fr !important;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-    }
-    @media (max-width: 700px) {
-      .nav-inner {
-        flex-direction: column;
-        gap: 0.7rem;
-        padding: 0 0.5rem;
-        align-items: flex-start;
-      }
-      .nav-links {
-        flex-wrap: wrap;
-        gap: 1.2rem;
-        width: 100%;
-        justify-content: flex-start;
-      }
-      .cta-btn {
-        margin-left: 0;
-        margin-top: 0.7rem;
-        width: 100%;
-        min-width: 0;
-      }
-      .hero-title {
-        font-size: 2rem;
-      }
-      .features-title, .screenshots-title, .testimonials-title, .pricing-title {
-        font-size: 1.3rem;
-      }
-      .feature-card, .testimonial-card, .pricing-plan {
-        padding: 1.2rem 0.7rem;
-      }
-      .trustbar-logos {
-        gap: 1.2rem;
-      }
-    }
-    @media (max-width: 500px) {
-      html, body {
-        font-size: 15px;
-      }
-      .hero {
-        padding: 1.2rem 0.3rem 0.7rem 0.3rem;
-        min-height: 180px;
-      }
-      .features-section, .screenshots-section, .testimonials-section, .pricing-section, .trustbar {
-        padding: 1rem 0.3rem 0 0.3rem;
-      }
-      .footer {
-        padding: 1.2rem 0.3rem 0.7rem 0.3rem;
-      }
-      .nav-logo {
-        font-size: 1.2rem;
-        min-width: 80px;
-      }
-      .cta-btn {
-        font-size: 1rem;
-        padding: 0.6em 1.2em;
-      }
-      .feature-title, .plan-title {
-        font-size: 1rem;
-      }
-      .feature-desc, .plan-desc, .testimonial-quote {
-        font-size: 0.97rem;
-      }
-      .trustbar-logos img {
-        height: 22px;
-        max-width: 70px;
-      }
-      .screenshot, .testimonial-card, .pricing-plan {
-        width: 98vw;
-        min-width: 0;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>deepPL - Enterprise Oracle PL/SQL Performance Analysis Platform</title>
+    <meta name="description" content="Transform your Oracle PL/SQL performance with deepPL's enterprise-grade profiling, real-time analytics, and intelligent code analysis. Reduce database costs by up to 40% and accelerate development cycles.">
+    <meta name="keywords" content="Oracle PL/SQL, performance analysis, database optimization, enterprise profiling, code analysis, Oracle tuning">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* deepPL Brand Colors */
+            --primary-bg: #0f1419;
+            --card-bg: #181a20;
+            --border-color: #23272e;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #60a5fa;
+            --success-green: #10b981;
+            --warning-amber: #f59e0b;
+            --danger-red: #ef4444;
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            --gradient-hero: linear-gradient(135deg, #0f1419 0%, #1a1f2e 50%, #0f1419 100%);
+            --gradient-card: linear-gradient(145deg, #181a20 0%, #1f2937 100%);
+            
+            /* Spacing */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+            
+            /* Typography */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 20, 25, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 80px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: #1f2937;
+            border-color: #374151;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--gradient-hero);
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #9ca3af 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background: var(--primary-bg);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-blue);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-benefits {
+            list-style: none;
+        }
+
+        .feature-benefits li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-benefits li::before {
+            content: '✓';
+            color: var(--success-green);
+            font-weight: 600;
+        }
+
+        /* Benefits Section */
+        .benefits {
+            padding: 80px 0;
+            background: var(--card-bg);
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .benefits-content h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .benefits-content p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .benefits-list {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .benefits-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(59, 130, 246, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .benefit-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+            margin-top: 0.125rem;
+        }
+
+        .benefit-text {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .benefits-visual {
+            background: var(--primary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-preview {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preview-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .preview-dot.red { background: #ef4444; }
+        .preview-dot.yellow { background: #f59e0b; }
+        .preview-dot.green { background: #10b981; }
+
+        .preview-content {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .preview-metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .preview-value {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 80px 0;
+            background: var(--primary-bg);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .pricing-card.featured::before {
+            content: 'Most Popular';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .pricing-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .pricing-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .pricing-period {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--success-green);
+            font-weight: 600;
+            width: 16px;
+            text-align: center;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 80px 0;
+            background: var(--gradient-hero);
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .cta p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-note {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-brand h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .footer-brand p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .footer-section h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-links a {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            transition: color 0.2s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--accent-blue);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Scroll animations */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease-out;
+        }
+
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="nav-inner">
-      <a href="#" class="nav-logo">
-        <img src="img/deepPL.png" alt="deepPL Logo" style="height:36px;width:auto;vertical-align:middle;margin-right:0.7rem;">
-        deepPL
-      </a>
-      <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#screenshots">Screenshots</a>
-        <a href="#testimonials">Testimonials</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#contact">Contact</a>
-        <button class="cta-btn" onclick="window.location='#contact'">Request Demo</button>
-      </div>
-    </div>
-  </nav>
-  <section class="hero">
-    <div class="hero-content">
-      <h1 class="hero-title">Enterprise-Grade PL/SQL Performance Profiler</h1>
-      <div class="hero-desc">
-        deepPL empowers Oracle teams to <b>profile, analyze, and optimize</b> PL/SQL code with <b>enterprise-grade precision</b>. Visualize execution, uncover bottlenecks, and ensure code quality—all in a modern, ocean-inspired dashboard.<br><br>
-        <span style="color:var(--muted);font-size:1.1rem;">Self-hosted. Secure. Built for high-performance teams.</span>
-      </div>
-      <div class="hero-cta">
-        <button class="cta-btn" onclick="window.location='#contact'">Book Enterprise Demo</button>
-        <button class="cta-btn" style="background:var(--ocean-light);color:var(--aqua);border:1.5px solid var(--aqua);" onclick="window.location='#pricing'">See Pricing</button>
-      </div>
-    </div>
-    <div class="hero-img">
-      <!-- Replace with real screenshot -->
-      <img src="https://dummyimage.com/380x220/112240/00e0ff&text=deepPL+Dashboard" alt="deepPL Dashboard Screenshot">
-    </div>
-  </section>
-  <section class="trustbar">
-    <div class="trustbar-title">Trusted by teams at</div>
-    <div class="trustbar-logos">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg" alt="Oracle">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_Web_Services_Logo.svg" alt="AWS">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/2/2d/Microsoft_Azure_Logo.svg" alt="Azure">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Google_Cloud_logo.svg" alt="Google Cloud">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/IBM_logo.svg" alt="IBM">
-    </div>
-  </section>
-  <section class="features-section" id="features">
-    <div class="features-title">Why deepPL?</div>
-    <div class="features-cards">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="16" r="12"/><path d="M16 10v6l4 2"/></svg>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon">dP</div>
+                <span class="logo-text">deepPL</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="#features" class="nav-link">Features</a></li>
+                <li><a href="#benefits" class="nav-link">Benefits</a></li>
+                <li><a href="#pricing" class="nav-link">Pricing</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <div class="nav-cta">
+                <a href="#demo" class="btn btn-secondary">Request Demo</a>
+                <a href="#pricing" class="btn btn-primary">Start Free Trial</a>
+            </div>
         </div>
-        <div class="feature-title">Real-Time Profiling</div>
-        <div class="feature-desc">Line-level performance metrics for every PL/SQL execution. Instantly identify slow code and optimize with confidence.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4l12 4v6c0 7-5 13-12 14C9 27 4 21 4 14V8l12-4z"/></svg>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content animate-fade-in-up">
+                <div class="hero-badge">
+                    <i class="mdi mdi-rocket"></i>
+                    Enterprise-Grade Oracle Performance Analysis
+                </div>
+                
+                <h1 class="hero-title">
+                    Transform Your Oracle PL/SQL Performance
+                </h1>
+                
+                <p class="hero-subtitle">
+                    deepPL delivers enterprise-grade profiling, real-time analytics, and intelligent code analysis to optimize your Oracle database performance. Reduce costs by up to 40% and accelerate development cycles.
+                </p>
+                
+                <div class="hero-cta">
+                    <a href="#demo" class="btn btn-primary">
+                        <i class="mdi mdi-play"></i>
+                        Start Free Trial
+                    </a>
+                    <a href="#features" class="btn btn-secondary">
+                        <i class="mdi mdi-information"></i>
+                        Learn More
+                    </a>
+                </div>
+                
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">40%</div>
+                        <div class="stat-label">Cost Reduction</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">10x</div>
+                        <div class="stat-label">Faster Analysis</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">99.9%</div>
+                        <div class="stat-label">Uptime SLA</div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="feature-title">Enterprise-Grade Security</div>
-        <div class="feature-desc">Self-hosted, air-gapped deployment. Advanced static analysis and security rules. No data ever leaves your network.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="8" r="4"/><path d="M16 12v8"/><circle cx="10" cy="24" r="4"/><circle cx="22" cy="24" r="4"/><path d="M16 20l-6 4"/><path d="M16 20l6 4"/></svg>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header scroll-animate">
+                <h2 class="section-title">Enterprise-Grade Features</h2>
+                <p class="section-subtitle">
+                    Comprehensive Oracle PL/SQL performance analysis with advanced profiling, real-time monitoring, and intelligent optimization recommendations.
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card scroll-animate">
+                    <div class="feature-icon">
+                        <i class="mdi mdi-speedometer"></i>
+                    </div>
+                    <h3 class="feature-title">Real-Time Performance Profiling</h3>
+                    <p class="feature-description">
+                        Advanced Oracle DBMS_PROFILER integration with line-level execution analysis, call tree visualization, and resource consumption tracking.
+                    </p>
+                    <ul class="feature-benefits">
+                        <li>Line-by-line execution metrics</li>
+                        <li>Interactive call tree visualization</li>
+                        <li>Resource consumption analysis</li>
+                        <li>Real-time performance monitoring</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card scroll-animate">
+                    <div class="feature-icon">
+                        <i class="mdi mdi-brain"></i>
+                    </div>
+                    <h3 class="feature-title">Intelligent Code Analysis</h3>
+                    <p class="feature-description">
+                        AI-powered static analysis engine that identifies performance bottlenecks, security vulnerabilities, and code quality issues with actionable recommendations.
+                    </p>
+                    <ul class="feature-benefits">
+                        <li>Security vulnerability detection</li>
+                        <li>Performance anti-pattern identification</li>
+                        <li>Code quality scoring (0-100)</li>
+                        <li>Automated optimization suggestions</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card scroll-animate">
+                    <div class="feature-icon">
+                        <i class="mdi mdi-database-search"></i>
+                    </div>
+                    <h3 class="feature-title">Oracle Wait Event Analysis</h3>
+                    <p class="feature-description">
+                        Deep Oracle wait event monitoring with v$session_wait integration, ASH analysis, and intelligent bottleneck identification.
+                    </p>
+                    <ul class="feature-benefits">
+                        <li>Real-time wait event capture</li>
+                        <li>I/O and lock contention analysis</li>
+                        <li>Wait class distribution insights</li>
+                        <li>Performance threshold alerting</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card scroll-animate">
+                    <div class="feature-icon">
+                        <i class="mdi mdi-chart-timeline-variant"></i>
+                    </div>
+                    <h3 class="feature-title">Advanced Analytics Dashboard</h3>
+                    <p class="feature-description">
+                        Modern, responsive analytics interface with interactive charts, trend analysis, and customizable performance dashboards.
+                    </p>
+                    <ul class="feature-benefits">
+                        <li>Interactive performance dashboards</li>
+                        <li>Historical trend analysis</li>
+                        <li>Custom metric visualization</li>
+                        <li>Mobile-responsive design</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card scroll-animate">
+                    <div class="feature-icon">
+                        <i class="mdi mdi-refresh"></i>
+                    </div>
+                    <h3 class="feature-title">Recursion Pattern Detection</h3>
+                    <p class="feature-description">
+                        Automatic detection and analysis of recursive patterns with depth monitoring, performance impact assessment, and optimization recommendations.
+                    </p>
+                    <ul class="feature-benefits">
+                        <li>Direct & indirect recursion detection</li>
+                        <li>Recursion depth analysis</li>
+                        <li>Excessive pattern flagging</li>
+                        <li>Stack overflow prevention</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card scroll-animate">
+                    <div class="feature-icon">
+                        <i class="mdi mdi-file-document-multiple"></i>
+                    </div>
+                    <h3 class="feature-title">Enterprise Reporting</h3>
+                    <p class="feature-description">
+                        Comprehensive HTML and PDF reporting with executive summaries, detailed analysis, and automated report generation for compliance.
+                    </p>
+                    <ul class="feature-benefits">
+                        <li>Executive performance summaries</li>
+                        <li>Detailed technical reports</li>
+                        <li>Automated report scheduling</li>
+                        <li>Compliance documentation</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div class="feature-title">Hierarchical Call Analysis</div>
-        <div class="feature-desc">Visualize call trees and dependencies. Drill down into execution paths and resource usage across your stack.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="8" width="24" height="16" rx="4"/><path d="M12 16h8"/><path d="M16 12v8"/></svg>
+    </section>
+
+    <!-- Benefits Section -->
+    <section id="benefits" class="benefits">
+        <div class="container">
+            <div class="benefits-grid">
+                <div class="benefits-content scroll-animate">
+                    <h2>Measurable Business Impact</h2>
+                    <p>
+                        deepPL transforms how enterprises approach Oracle PL/SQL performance optimization, delivering quantifiable results that directly impact your bottom line.
+                    </p>
+                    
+                    <ul class="benefits-list">
+                        <li>
+                            <div class="benefit-icon">
+                                <i class="mdi mdi-trending-down"></i>
+                            </div>
+                            <div class="benefit-text">
+                                <strong>Reduce Database Costs by 40%</strong><br>
+                                Optimize resource usage and eliminate performance bottlenecks
+                            </div>
+                        </li>
+                        <li>
+                            <div class="benefit-icon">
+                                <i class="mdi mdi-rocket"></i>
+                            </div>
+                            <div class="benefit-text">
+                                <strong>10x Faster Development Cycles</strong><br>
+                                Real-time feedback and automated optimization suggestions
+                            </div>
+                        </li>
+                        <li>
+                            <div class="benefit-icon">
+                                <i class="mdi mdi-shield-check"></i>
+                            </div>
+                            <div class="benefit-text">
+                                <strong>Enhanced Security & Compliance</strong><br>
+                                Automated vulnerability detection and compliance reporting
+                            </div>
+                        </li>
+                        <li>
+                            <div class="benefit-icon">
+                                <i class="mdi mdi-account-group"></i>
+                            </div>
+                            <div class="benefit-text">
+                                <strong>Improved Team Productivity</strong><br>
+                                Collaborative analysis tools and knowledge sharing
+                            </div>
+                        </li>
+                    </ul>
+                    
+                    <a href="#demo" class="btn btn-primary">
+                        <i class="mdi mdi-calendar"></i>
+                        Schedule Demo
+                    </a>
+                </div>
+                
+                <div class="benefits-visual scroll-animate">
+                    <div class="dashboard-preview">
+                        <div class="preview-header">
+                            <div class="preview-dot red"></div>
+                            <div class="preview-dot yellow"></div>
+                            <div class="preview-dot green"></div>
+                        </div>
+                        <div class="preview-content">
+                            <div class="preview-metric">
+                                <span>CPU Usage:</span>
+                                <span class="preview-value">23.4%</span>
+                            </div>
+                            <div class="preview-metric">
+                                <span>I/O Wait:</span>
+                                <span class="preview-value">12.1ms</span>
+                            </div>
+                            <div class="preview-metric">
+                                <span>Lock Wait:</span>
+                                <span class="preview-value">0.8ms</span>
+                            </div>
+                            <div class="preview-metric">
+                                <span>Quality Score:</span>
+                                <span class="preview-value">94/100</span>
+                            </div>
+                            <div class="preview-metric">
+                                <span>Critical Issues:</span>
+                                <span class="preview-value">0</span>
+                            </div>
+                            <div class="preview-metric">
+                                <span>Performance Gain:</span>
+                                <span class="preview-value">+42%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="feature-title">Modern Web Dashboard</div>
-        <div class="feature-desc">Intuitive, ocean-inspired UI for real-time monitoring, reporting, and team collaboration.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="20" height="20" rx="5"/><path d="M16 11v6"/><circle cx="16" cy="19" r="1"/></svg>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <div class="section-header scroll-animate">
+                <h2 class="section-title">Enterprise Pricing</h2>
+                <p class="section-subtitle">
+                    Flexible licensing options designed for enterprise teams and organizations of all sizes.
+                </p>
+            </div>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card scroll-animate">
+                    <h3 class="pricing-title">Professional</h3>
+                    <p class="pricing-subtitle">For development teams</p>
+                    <div class="pricing-price">$299</div>
+                    <div class="pricing-period">per month / up to 25 users</div>
+                    <ul class="pricing-features">
+                        <li>Real-time performance profiling</li>
+                        <li>Code analysis & recommendations</li>
+                        <li>Basic reporting & exports</li>
+                        <li>Email support</li>
+                        <li>Standard SLA (99.5%)</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-secondary" style="width: 100%;">Get Started</a>
+                </div>
+                
+                <div class="pricing-card featured scroll-animate">
+                    <h3 class="pricing-title">Enterprise</h3>
+                    <p class="pricing-subtitle">For large organizations</p>
+                    <div class="pricing-price">$799</div>
+                    <div class="pricing-period">per month / up to 100 users</div>
+                    <ul class="pricing-features">
+                        <li>All Professional features</li>
+                        <li>Oracle wait event analysis</li>
+                        <li>Advanced analytics dashboard</li>
+                        <li>Automated report scheduling</li>
+                        <li>Priority support & training</li>
+                        <li>Premium SLA (99.9%)</li>
+                        <li>Custom integrations</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-primary" style="width: 100%;">Start Free Trial</a>
+                </div>
+                
+                <div class="pricing-card scroll-animate">
+                    <h3 class="pricing-title">Custom</h3>
+                    <p class="pricing-subtitle">For enterprise deployments</p>
+                    <div class="pricing-price">Custom</div>
+                    <div class="pricing-period">tailored to your needs</div>
+                    <ul class="pricing-features">
+                        <li>All Enterprise features</li>
+                        <li>Unlimited users</li>
+                        <li>On-premise deployment</li>
+                        <li>Custom feature development</li>
+                        <li>Dedicated support team</li>
+                        <li>White-label options</li>
+                        <li>Professional services</li>
+                    </ul>
+                    <a href="#contact" class="btn btn-secondary" style="width: 100%;">Contact Sales</a>
+                </div>
+            </div>
         </div>
-        <div class="feature-title">Static Code Analysis</div>
-        <div class="feature-desc">Detect anti-patterns, enforce best practices, and ensure code quality before deployment.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="16" cy="8" rx="12" ry="5"/><rect x="4" y="8" width="24" height="16" rx="8"/></svg>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content scroll-animate">
+                <h2>Ready to Transform Your Oracle Performance?</h2>
+                <p>
+                    Join hundreds of enterprises already using deepPL to optimize their Oracle PL/SQL performance and reduce database costs.
+                </p>
+                
+                <div class="cta-buttons">
+                    <a href="#demo" class="btn btn-primary">
+                        <i class="mdi mdi-rocket"></i>
+                        Start Free 30-Day Trial
+                    </a>
+                    <a href="mailto:sales@deeppl.io" class="btn btn-secondary">
+                        <i class="mdi mdi-email"></i>
+                        Contact Sales Team
+                    </a>
+                </div>
+                
+                <p class="cta-note">
+                    No credit card required • Full feature access • Enterprise support included
+                </p>
+            </div>
         </div>
-        <div class="feature-title">Easy Integration</div>
-        <div class="feature-desc">Deploy via Docker, VM, or Kubernetes. Integrates with CI/CD and your existing Oracle workflow.</div>
-      </div>
-    </div>
-  </section>
-  <section class="screenshots-section" id="screenshots">
-    <div class="screenshots-title">Product Screenshots</div>
-    <div class="screenshots-row">
-      <div class="screenshot"><span>Profiler Dashboard<br>(screenshot)</span></div>
-      <div class="screenshot"><span>Call Tree Visualization<br>(screenshot)</span></div>
-      <div class="screenshot"><span>Static Analysis Report<br>(screenshot)</span></div>
-    </div>
-  </section>
-  <section class="testimonials-section" id="testimonials">
-    <div class="testimonials-title">What Our Customers Say</div>
-    <div class="testimonials-row">
-      <div class="testimonial-card">
-        <div class="testimonial-quote">“deepPL cut our PL/SQL tuning time in half. The profiler’s clarity and the static analysis caught issues we’d missed for years.”</div>
-        <div class="testimonial-author">Alex M.</div>
-        <div class="testimonial-role">Lead Oracle DBA, FinTech Enterprise</div>
-      </div>
-      <div class="testimonial-card">
-        <div class="testimonial-quote">“The self-hosted model was a must for us. deepPL’s dashboard is as slick as any SaaS, but runs 100% on-prem.”</div>
-        <div class="testimonial-author">Priya S.</div>
-        <div class="testimonial-role">Head of Data Engineering, Healthcare</div>
-      </div>
-      <div class="testimonial-card">
-        <div class="testimonial-quote">“We replaced expensive legacy tools with deepPL. Our devs love it, and management loves the price.”</div>
-        <div class="testimonial-author">James T.</div>
-        <div class="testimonial-role">CTO, SaaS Provider</div>
-      </div>
-    </div>
-  </section>
-  <section class="pricing-section" id="pricing">
-    <div class="pricing-title">Simple, Transparent Pricing</div>
-    <div class="pricing-table">
-      <div class="pricing-row">
-        <div class="pricing-plan">
-          <div class="plan-title">Team</div>
-          <div class="plan-price">€1,200/yr</div>
-          <div class="plan-desc">For small teams and consultants. All core features, unlimited profiling, email support.</div>
-          <button class="plan-cta" onclick="window.location='#contact'">Start Free Trial</button>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>deepPL Performance Suite</h3>
+                    <p>
+                        Enterprise-grade Oracle PL/SQL performance analysis platform trusted by development teams worldwide.
+                    </p>
+                    <div class="social-links">
+                        <a href="#"><i class="mdi mdi-linkedin"></i></a>
+                        <a href="#"><i class="mdi mdi-twitter"></i></a>
+                        <a href="#"><i class="mdi mdi-github"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                        <li><a href="#demo">Demo</a></li>
+                        <li><a href="/docs">Documentation</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="/about">About Us</a></li>
+                        <li><a href="/careers">Careers</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/press">Press</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@deeppl.io">Contact Support</a></li>
+                        <li><a href="/help">Help Center</a></li>
+                        <li><a href="/status">System Status</a></li>
+                        <li><a href="/security">Security</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div>
+                    © 2025 deepPL Performance Suite. All rights reserved.
+                </div>
+                <div>
+                    <a href="/privacy" style="color: var(--text-muted); margin-right: 1rem;">Privacy Policy</a>
+                    <a href="/terms" style="color: var(--text-muted);">Terms of Service</a>
+                </div>
+            </div>
         </div>
-        <div class="pricing-plan">
-          <div class="plan-title">Enterprise</div>
-          <div class="plan-price">Custom</div>
-          <div class="plan-desc">For organizations with advanced needs. SSO, audit, priority support, custom integrations.</div>
-          <button class="plan-cta" onclick="window.location='#contact'">Contact Sales</button>
-        </div>
-      </div>
-    </div>
-    <div style="color:var(--muted);font-size:1rem;text-align:center;">All plans are self-hosted. No data leaves your network. <br>30-day money-back guarantee.</div>
-  </section>
-  <footer class="footer" id="contact">
-    <div style="margin-bottom:1rem;">
-      <a href="#" style="color:var(--aqua);text-decoration:none;font-weight:700;">deepPL</a> &mdash; Deep Insights for PL/SQL Performance
-    </div>
-    <div style="margin-bottom:0.7rem;">
-      &copy; 2025 deepPL. All rights reserved. &nbsp;|&nbsp;
-      <a href="mailto:sales@deeppl.dev" style="color:var(--cyan);text-decoration:underline;">Contact Sales</a>
-    </div>
-    <div style="font-size:0.95em;opacity:0.7;">
-      Built with love by the deepPL team. Inspired by the depths of the ocean.<br>
-      <span style="color:var(--aqua);">Ready to see deepPL in action?</span>
-      <button class="cta-btn" style="margin-left:1rem;margin-top:0.7rem;" onclick="window.location='mailto:sales@deeppl.dev?subject=Request%20deepPL%20Demo'">Request Demo</button>
-    </div>
-  </footer>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.scroll-animate').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Navbar background on scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(15, 20, 25, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(15, 20, 25, 0.95)';
+            }
+        });
+
+        // Demo request handling
+        document.querySelectorAll('a[href="#demo"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Replace with your actual demo booking system
+                window.open('mailto:sales@deeppl.io?subject=Demo Request&body=I would like to schedule a demo of deepPL Performance Suite.', '_blank');
+            });
+        });
+
+        // Contact form handling
+        document.querySelectorAll('a[href="#contact"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Replace with your actual contact system
+                window.open('mailto:sales@deeppl.dev?subject=Sales Inquiry&body=I am interested in deepPL Performance Suite for my organization.', '_blank');
+            });
+        });
+    </script>
 </body>
-</html>
+</html> 
